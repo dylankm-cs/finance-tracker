@@ -3,10 +3,12 @@ console.log("Finance Tracker is running!");
 const incomeDisplay = document.getElementById("income-amount");
 const expenseDisplay = document.getElementById("expense-amount");
 const balanceDisplay = document.getElementById("balance-amount");
+const overallBudgetContainer = document.getElementById("overall-budget");
 
 const transactionsContainer = document.getElementById("transactions-container");
 
 let editingTransactionid = null;
+let editingBudgetid = null;
 
 const transaction = {
     id: 1,
@@ -47,49 +49,230 @@ function saveTransactions(){
     localStorage.setItem("transactions", JSON.stringify(transactions));
 
 }
-function calculateBudgetSpending(category){
-    let totalSpent = 0;
-    for (const transaction of transactions){
-        if(transaction.type === "expense" && transaction.category === category){
-            totalSpent = totalSpent + transaction.amount;
-        }
-    }
-    return totalSpent;
-}
 
+function calculateBudgetSpending(category){
+
+    let totalSpent = 0;
+
+    for(const transaction of transactions){
+
+        if(transaction.type === "expense" && transaction.category === category){
+
+            totalSpent = totalSpent + transaction.amount;
+
+        }
+
+    }
+
+    return totalSpent;
+
+}
+function calculateOverallBudget(){
+
+    let totalBudget = 0;
+
+    for(const budget of budgets){
+
+        totalBudget = totalBudget + budget.limit;
+
+    }
+
+    return totalBudget;
+
+}
+function calculateOverallSpending(){
+
+    let totalSpent = 0;
+
+    for(const budget of budgets){
+
+        totalSpent = totalSpent + calculateBudgetSpending(budget.category);
+
+    }
+
+    return totalSpent;
+
+}
+function displayOverallBudget(){
+
+    const totalBudget = calculateOverallBudget();
+
+    const totalSpent = calculateOverallSpending();
+
+    if(totalBudget === 0){
+
+        overallBudgetContainer.innerHTML = `
+        
+            <div class="overall-budget">
+
+                <h2>Overall Budget</h2>
+
+                <p>No budgets have been created yet.</p>
+
+            </div>
+        
+        `;
+
+        return;
+
+    }
+
+    const actualPercentage = (totalSpent / totalBudget) * 100;
+
+    const barPercentage = Math.min(actualPercentage, 100);
+
+    const remaining = totalBudget - totalSpent;
+    let budgetStatus = "";
+
+if(remaining >= 0){
+
+    budgetStatus = `Remaining: R${remaining.toFixed(2)}`;
+
+}else{
+
+    budgetStatus = `Over budget by: R${Math.abs(remaining).toFixed(2)}`;
+
+}
+overallBudgetContainer.innerHTML = `
+    
+    <div class="overall-budget">
+
+        <h2>Overall Budget</h2>
+
+       <div class="overall-budget-amount">
+    R${totalSpent.toFixed(2)}
+    <span>/ R${totalBudget.toFixed(2)}</span>
+</div>
+
+<div class="overall-budget-percentage">
+    ${actualPercentage.toFixed(0)}% USED
+</div>
+
+<p class="budget-status">${budgetStatus}</p>
+
+        <div class="budget-progress">
+
+            <div class="budget-progress-fill"></div>
+
+        </div>
+
+    </div>
+
+`;
+const progressFill = overallBudgetContainer.querySelector(".budget-progress-fill");
+
+progressFill.style.width = barPercentage + "%";
+
+}
 function displayBudget(){
+
     const budgetContainer = document.getElementById("budget-container");
+
     budgetContainer.innerHTML = "";
 
     for(const budget of budgets){
+
         const budgetElement = document.createElement("div");
+
         budgetElement.classList.add("budget");
+
         const totalSpent = calculateBudgetSpending(budget.category);
-  const actualPercentage = (totalSpent / budget.limit) * 100;
 
-const barPercentage = Math.min(actualPercentage, 100);
-if(actualPercentage>=100){
-    budgetElement.classList.add("over-budget");
+        const actualPercentage = (totalSpent / budget.limit) * 100;
 
-}else if(actualPercentage >=75){
-    budgetElement.classList.add("budget-warning");
+        const barPercentage = Math.min(actualPercentage, 100);
+
+        const remaining = budget.limit - totalSpent;
+        let budgetStatus = "";
+let budgetStatusClass = "";
+
+if(remaining >= 0){
+
+    budgetStatus = `Remaining: R${remaining.toFixed(2)}`;
+    budgetStatusClass = "budget-status";
+
+}else{
+
+    budgetStatus = `Over budget by: R${Math.abs(remaining).toFixed(2)}`;
+    budgetStatusClass = "budget-status over-budget-text";
+
 }
 
-        budgetElement.innerHTML= `
-        <h3>${budget.category}</h3>
-        <p> Spent: R${totalSpent.toFixed(2)}</p>
-        
-        <p> Budget: R${budget.limit.toFixed(2)} - ${actualPercentage.toFixed(0)}% used</p>
+        if(actualPercentage >= 100){
 
-        <div class = "budget-progress">
-        <div class = "budget-progress-fill"></div>
-        </div>
+            budgetElement.classList.add("over-budget");
+
+        }else if(actualPercentage >= 75){
+
+            budgetElement.classList.add("budget-warning");
+
+        }
+
+        budgetElement.innerHTML = `
+        
+            <h3>${budget.category}</h3>
+
+            <p>Spent: R${totalSpent.toFixed(2)}</p>
+
+            <p>Budget: R${budget.limit.toFixed(2)} - ${actualPercentage.toFixed(0)}% used</p>
+           <p class="${budgetStatusClass}">${budgetStatus}</p>
+
+            <div class="budget-progress">
+
+                <div class="budget-progress-fill"></div>
+
+            </div>
+
+            <div class="budget-actions">
+
+                <button class="edit-budget">Edit</button>
+
+                <button class="delete-budget">Delete</button>
+
+            </div>
         `;
+
+        const editBudgetButton = budgetElement.querySelector(".edit-budget");
+
+        editBudgetButton.addEventListener("click", function(){
+
+            editingBudgetid = budget.id;
+
+            budgetCategoryInput.value = budget.category;
+
+            budgetLimitInput.value = budget.limit;
+
+            budgetButtonText.textContent = "Save Changes";
+
+        });
+
+        const deleteBudgetButton = budgetElement.querySelector(".delete-budget");
+
+        deleteBudgetButton.addEventListener("click", function(){
+
+            const index = budgets.findIndex(function(item){
+
+                return item.id === budget.id;
+
+            });
+
+            budgets.splice(index, 1);
+
+            saveBudgets();
+
+            displayBudget();
+            displayOverallBudget();
+
+        });
+
         const progressFill = budgetElement.querySelector(".budget-progress-fill");
+
         progressFill.style.width = barPercentage + "%";
+
         budgetContainer.appendChild(budgetElement);
+
     }
-    
+
 }
 
 function updateDashboard(){
@@ -121,32 +304,47 @@ function updateDashboard(){
     balanceDisplay.textContent = "R" + balance.toFixed(2);
 
 }
+
 const defaultBudgets = [
+
     {
         id: 1,
         category: "Food",
         limit: 3000
     },
+
     {
         id: 2,
         category: "Transport",
         limit: 1500
     },
+
     {
         id: 3,
         category: "Entertainment",
         limit: 1000
     }
+
 ];
+
 function loadBudget(){
+
     const savedBudgets = localStorage.getItem("budgets");
+
     if(savedBudgets === null){
+
         return defaultBudgets;
+
     }
+
     return JSON.parse(savedBudgets);
+
 }
+
 function saveBudgets(){
+
     localStorage.setItem("budgets", JSON.stringify(budgets));
+
 }
 
 let budgets = loadBudget();
@@ -180,12 +378,17 @@ const categoryError = document.getElementById("category-error");
 const transactionButtonText = document.getElementById("transaction-button-text");
 
 const addTransactionButton = document.getElementById("add-transaction");
+
 const budgetCategoryInput = document.getElementById("budget-category");
 
 const budgetLimitInput = document.getElementById("budget-limit");
+
 const budgetError = document.getElementById("budget-error");
 
+const budgetButtonText = document.getElementById("budget-button-text");
+
 const addBudgetButton = document.getElementById("add-budget");
+
 addBudgetButton.addEventListener("click", function(){
 
     budgetError.textContent = "";
@@ -193,36 +396,89 @@ addBudgetButton.addEventListener("click", function(){
     const category = budgetCategoryInput.value.trim();
 
     const limit = Number(budgetLimitInput.value);
+
     if(category === ""){
 
-         budgetError.textContent = "Category is required.";
-    return;
+        budgetError.textContent = "Category is required.";
 
-}
+        return;
 
-if(limit <= 0){
+    }
 
-    budgetError.textContent = "Budget limit must be greater than R0.";
-    return;
+    if(limit <= 0){
 
-}
-const exisitingBudget = budgets.find(function(budget){
-    return budget.category.toLowerCase()===category.toLowerCase();
-});
-if(exisitingBudget){
-      budgetError.textContent = "A budget for this category already exists.";
-    return;
-}
-const newBudget = {
-    id: Date.now(),
-    category: category,
-    limit: limit
-};
-budgets.push(newBudget);
-saveBudgets();
-displayBudget();
-budgetCategoryInput.value = "";
-budgetLimitInput.value = "";
+        budgetError.textContent = "Budget limit must be greater than R0.";
+
+        return;
+
+    }
+
+    const existingBudget = budgets.find(function(budget){
+
+        return (
+            budget.category.toLowerCase() === category.toLowerCase()
+            && budget.id !== editingBudgetid
+        );
+
+    });
+
+    if(existingBudget){
+
+        budgetError.textContent = "A budget for this category already exists.";
+
+        return;
+
+    }
+
+    if(editingBudgetid !== null){
+
+        const budgetToEdit = budgets.find(function(budget){
+
+            return budget.id === editingBudgetid;
+
+        });
+
+        budgetToEdit.category = category;
+
+        budgetToEdit.limit = limit;
+
+        editingBudgetid = null;
+
+        saveBudgets();
+
+        displayBudget();
+        displayOverallBudget();
+
+        budgetCategoryInput.value = "";
+
+        budgetLimitInput.value = "";
+
+        budgetButtonText.textContent = "Add Budget";
+
+        return;
+
+    }
+
+    const newBudget = {
+
+        id: Date.now(),
+
+        category: category,
+
+        limit: limit
+
+    };
+
+    budgets.push(newBudget);
+
+    saveBudgets();
+
+    displayBudget();
+    displayOverallBudget();
+
+    budgetCategoryInput.value = "";
+
+    budgetLimitInput.value = "";
 
 });
 
@@ -423,7 +679,9 @@ function displayTransactions(){
             updateCategoryFilter();
 
             displayTransactions();
-        displayBudget();
+
+            displayBudget();
+            displayOverallBudget();
 
         });
 
@@ -566,7 +824,9 @@ addTransactionButton.addEventListener("click", function(){
     updateCategoryFilter();
 
     displayTransactions();
+
     displayBudget();
+    displayOverallBudget();
 
     editingTransactionid = null;
 
@@ -589,4 +849,7 @@ updateDashboard();
 updateCategoryFilter();
 
 displayTransactions();
+
 displayBudget();
+
+displayOverallBudget();
