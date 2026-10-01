@@ -14,17 +14,16 @@
 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
-
 <body>
 
     <div class="app">
 
         <h1 class="app-title">Finance Tracker</h1>
 
-        <p>PERSONAL FINANCE TRACKER</p>
+        <p class="app-subtitle">Personal finance tracker</p>
 
         <div class="dashboard">
 
@@ -90,70 +89,128 @@
 
         </div>
 
+        <section class="transaction-list">
+
+            <h2>Transactions</h2>
+
+            <div class="filters">
+
+                <input
+                    type="text"
+                    id="search-input"
+                    placeholder="Search transactions"
+                >
+
+                <select id="type-filter">
+
+                    <option value="all">All Transactions</option>
+
+                    <option value="income">Income</option>
+
+                    <option value="expense">Expense</option>
+
+                </select>
+
+                <select id="category-filter">
+
+                    <option value="all">All Categories</option>
+
+                </select>
+
+                <select id="sort-filter">
+
+                    <option value="newest">Newest First</option>
+
+                    <option value="oldest">Oldest First</option>
+
+                    <option value="highest">Highest Amount</option>
+
+                    <option value="lowest">Lowest Amount</option>
+
+                </select>
+
+            </div>
+
+            <div id="transactions-container"></div>
+
+        </section>
+
+        <section class="budget-section">
+
+            <h2>Budget</h2>
+
+            <div class="budget-form">
+
+                <input type="text" id="budget-category" placeholder="Category">
+
+                <input type="number" id="budget-limit" placeholder="Budget limit">
+
+                <button id="add-budget">
+
+                    <span id="budget-button-text">Add Budget</span>
+
+                </button>
+
+            </div>
+
+            <p class="error-message" id="budget-error"></p>
+
+            <div id="overall-budget"></div>
+
+            <div id="budget-container"></div>
+
+            <div id="insights"></div>
+
+        </section>
+
     </div>
+    <div id="edit-transaction-modal" class="modal">
 
-    <section class="transaction-list">
+    <div class="modal-content">
 
-        <h2>Transactions</h2>
+        <div class="modal-header">
 
-        <input
-            type="text"
-            id="search-input"
-            placeholder="Search transactions"
-        >
+            <h2>Edit Transaction</h2>
 
-        <select id="type-filter">
+            <button id="close-edit-modal" class="modal-close">&times;</button>
 
-            <option value="all">All Transactions</option>
+        </div>
 
-            <option value="income">Income</option>
+        <input type="text" id="edit-description" placeholder="Description">
+
+        <p class="error-message" id="edit-description-error"></p>
+
+        <input type="number" id="edit-amount" placeholder="Amount">
+
+        <p class="error-message" id="edit-amount-error"></p>
+
+        <select id="edit-type">
 
             <option value="expense">Expense</option>
 
-        </select>
-
-        <select id="category-filter">
-
-            <option value="all">All Categories</option>
+            <option value="income">Income</option>
 
         </select>
 
-        <select id="sort-filter">
+        <input type="text" id="edit-category" placeholder="Category">
 
-            <option value="newest">Newest First</option>
+        <p class="error-message" id="edit-category-error"></p>
 
-            <option value="oldest">Oldest First</option>
+        <label for="edit-date">Date</label>
 
-            <option value="highest">Highest Amount</option>
+        <input type="date" id="edit-date">
 
-            <option value="lowest">Lowest Amount</option>
+        <button id="save-edit-transaction">
 
-        </select>
+            Save Changes
 
-        <div id="transactions-container"></div>
+        </button>
 
-    </section>
+    </div>
 
-    <section class="budget-section">
-
-        <h2>Budget</h2>
-        <div class="budget-form">
-            <input type="text" id="budget-category" placeholder="Category">
-            <input type="number" id="budget-limit" placeholder="Budget limit">
-            <p class="error-message" id="budget-error"></p>
-            <button id="add-budget">
-    <span id="budget-button-text">Add Budget</span>
-</button>
-        </div>
-
-      <div id="overall-budget"></div>
-
-<div id="budget-container"></div>
-
-    </section>
+</div>
 
     <script src="script.js"></script>
 
 </body>
-
 </html>

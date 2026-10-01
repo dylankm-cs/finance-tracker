@@ -4,6 +4,7 @@ const incomeDisplay = document.getElementById("income-amount");
 const expenseDisplay = document.getElementById("expense-amount");
 const balanceDisplay = document.getElementById("balance-amount");
 const overallBudgetContainer = document.getElementById("overall-budget");
+const insightsContainer = document.getElementById("insights");
 
 const transactionsContainer = document.getElementById("transactions-container");
 
@@ -67,6 +68,145 @@ function calculateBudgetSpending(category){
     return totalSpent;
 
 }
+
+function calculateSpendingByCategory(){
+
+    const spendingByCategory = {};
+
+    for(const transaction of transactions){
+
+        if(transaction.type === "expense"){
+
+            if(spendingByCategory[transaction.category] === undefined){
+
+                spendingByCategory[transaction.category] = 0;
+
+            }
+
+            spendingByCategory[transaction.category] =
+                spendingByCategory[transaction.category] + transaction.amount;
+
+        }
+
+    }
+
+    return spendingByCategory;
+
+}
+
+function calculateTotalSpending(){
+
+    let totalSpending = 0;
+
+    for(const transaction of transactions){
+
+        if(transaction.type === "expense"){
+
+            totalSpending = totalSpending + transaction.amount;
+
+        }
+
+    }
+
+    return totalSpending;
+
+}
+
+function displayInsights(){
+
+    const spendingByCategory = calculateSpendingByCategory();
+
+    const totalSpending = calculateTotalSpending();
+
+    const totalBudget = calculateOverallBudget();
+
+    const totalBudgetSpending = calculateOverallSpending();
+
+    let highestSpending = 0;
+
+    let budgetUsagePercentage = 0;
+
+    if(totalBudget > 0){
+
+        budgetUsagePercentage = (totalBudgetSpending / totalBudget) * 100;
+
+    }
+
+    let highestSpendingCategory = "";
+
+    for(const category in spendingByCategory){
+
+        if(spendingByCategory[category] > highestSpending){
+
+            highestSpending = spendingByCategory[category];
+
+            highestSpendingCategory = category;
+
+        }
+
+    }
+
+    let categoryHTML = "";
+
+    for(const category in spendingByCategory){
+
+        const percentage =
+            (spendingByCategory[category] / highestSpending) * 100;
+
+        categoryHTML = categoryHTML + `
+        
+            <div class="insight-category">
+
+                <div class="insight-category-header">
+
+                    <span>${category}</span>
+
+                    <span>R${spendingByCategory[category].toFixed(2)}</span>
+
+                </div>
+
+                <div class="insight-progress">
+
+                    <div class="insight-progress-fill" style="width: ${percentage}%"></div>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+    insightsContainer.innerHTML = `
+    
+        <div class="insights">
+
+            <h2>Spending Insights</h2>
+
+            <p class="insights-total">
+                Total Spending: R${totalSpending.toFixed(2)}
+            </p>
+
+            <p class="insights-highest">
+                Highest Spending: ${highestSpendingCategory}
+            </p>
+
+            <p class="insights-budget">
+                Budget Used: ${budgetUsagePercentage.toFixed(0)}%
+            </p>
+
+            <div class="insight-categories">
+
+                ${categoryHTML}
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
 function calculateOverallBudget(){
 
     let totalBudget = 0;
@@ -80,6 +220,7 @@ function calculateOverallBudget(){
     return totalBudget;
 
 }
+
 function calculateOverallSpending(){
 
     let totalSpent = 0;
@@ -93,6 +234,7 @@ function calculateOverallSpending(){
     return totalSpent;
 
 }
+
 function displayOverallBudget(){
 
     const totalBudget = calculateOverallBudget();
@@ -122,48 +264,58 @@ function displayOverallBudget(){
     const barPercentage = Math.min(actualPercentage, 100);
 
     const remaining = totalBudget - totalSpent;
+
     let budgetStatus = "";
 
-if(remaining >= 0){
+    if(remaining >= 0){
 
-    budgetStatus = `Remaining: R${remaining.toFixed(2)}`;
+        budgetStatus = `Remaining: R${remaining.toFixed(2)}`;
 
-}else{
+    }else{
 
-    budgetStatus = `Over budget by: R${Math.abs(remaining).toFixed(2)}`;
+        budgetStatus = `Over budget by: R${Math.abs(remaining).toFixed(2)}`;
 
-}
-overallBudgetContainer.innerHTML = `
+    }
+
+    overallBudgetContainer.innerHTML = `
     
-    <div class="overall-budget">
+        <div class="overall-budget">
 
-        <h2>Overall Budget</h2>
+            <h2>Overall Budget</h2>
 
-       <div class="overall-budget-amount">
-    R${totalSpent.toFixed(2)}
-    <span>/ R${totalBudget.toFixed(2)}</span>
-</div>
+            <div class="overall-budget-amount">
 
-<div class="overall-budget-percentage">
-    ${actualPercentage.toFixed(0)}% USED
-</div>
+                R${totalSpent.toFixed(2)}
 
-<p class="budget-status">${budgetStatus}</p>
+                <span>/ R${totalBudget.toFixed(2)}</span>
 
-        <div class="budget-progress">
+            </div>
 
-            <div class="budget-progress-fill"></div>
+            <div class="overall-budget-percentage">
+
+                ${actualPercentage.toFixed(0)}% USED
+
+            </div>
+
+            <p class="budget-status">${budgetStatus}</p>
+
+            <div class="budget-progress">
+
+                <div class="budget-progress-fill"></div>
+
+            </div>
 
         </div>
 
-    </div>
+    `;
 
-`;
-const progressFill = overallBudgetContainer.querySelector(".budget-progress-fill");
+    const progressFill =
+        overallBudgetContainer.querySelector(".budget-progress-fill");
 
-progressFill.style.width = barPercentage + "%";
+    progressFill.style.width = barPercentage + "%";
 
 }
+
 function displayBudget(){
 
     const budgetContainer = document.getElementById("budget-container");
@@ -183,20 +335,25 @@ function displayBudget(){
         const barPercentage = Math.min(actualPercentage, 100);
 
         const remaining = budget.limit - totalSpent;
+
         let budgetStatus = "";
-let budgetStatusClass = "";
 
-if(remaining >= 0){
+        let budgetStatusClass = "";
 
-    budgetStatus = `Remaining: R${remaining.toFixed(2)}`;
-    budgetStatusClass = "budget-status";
+        if(remaining >= 0){
 
-}else{
+            budgetStatus = `Remaining: R${remaining.toFixed(2)}`;
 
-    budgetStatus = `Over budget by: R${Math.abs(remaining).toFixed(2)}`;
-    budgetStatusClass = "budget-status over-budget-text";
+            budgetStatusClass = "budget-status";
 
-}
+        }else{
+
+            budgetStatus =
+                `Over budget by: R${Math.abs(remaining).toFixed(2)}`;
+
+            budgetStatusClass = "budget-status over-budget-text";
+
+        }
 
         if(actualPercentage >= 100){
 
@@ -214,8 +371,14 @@ if(remaining >= 0){
 
             <p>Spent: R${totalSpent.toFixed(2)}</p>
 
-            <p>Budget: R${budget.limit.toFixed(2)} - ${actualPercentage.toFixed(0)}% used</p>
-           <p class="${budgetStatusClass}">${budgetStatus}</p>
+            <p>
+                Budget: R${budget.limit.toFixed(2)} -
+                ${actualPercentage.toFixed(0)}% used
+            </p>
+
+            <p class="${budgetStatusClass}">
+                ${budgetStatus}
+            </p>
 
             <div class="budget-progress">
 
@@ -232,7 +395,8 @@ if(remaining >= 0){
             </div>
         `;
 
-        const editBudgetButton = budgetElement.querySelector(".edit-budget");
+        const editBudgetButton =
+            budgetElement.querySelector(".edit-budget");
 
         editBudgetButton.addEventListener("click", function(){
 
@@ -246,7 +410,8 @@ if(remaining >= 0){
 
         });
 
-        const deleteBudgetButton = budgetElement.querySelector(".delete-budget");
+        const deleteBudgetButton =
+            budgetElement.querySelector(".delete-budget");
 
         deleteBudgetButton.addEventListener("click", function(){
 
@@ -261,11 +426,15 @@ if(remaining >= 0){
             saveBudgets();
 
             displayBudget();
+
             displayOverallBudget();
+
+            displayInsights();
 
         });
 
-        const progressFill = budgetElement.querySelector(".budget-progress-fill");
+        const progressFill =
+            budgetElement.querySelector(".budget-progress-fill");
 
         progressFill.style.width = barPercentage + "%";
 
@@ -375,19 +544,61 @@ const amountError = document.getElementById("amount-error");
 
 const categoryError = document.getElementById("category-error");
 
-const transactionButtonText = document.getElementById("transaction-button-text");
+const transactionButtonText =
+    document.getElementById("transaction-button-text");
 
-const addTransactionButton = document.getElementById("add-transaction");
+const addTransactionButton =
+    document.getElementById("add-transaction");
 
-const budgetCategoryInput = document.getElementById("budget-category");
+const budgetCategoryInput =
+    document.getElementById("budget-category");
 
-const budgetLimitInput = document.getElementById("budget-limit");
+const budgetLimitInput =
+    document.getElementById("budget-limit");
 
-const budgetError = document.getElementById("budget-error");
+const budgetError =
+    document.getElementById("budget-error");
 
-const budgetButtonText = document.getElementById("budget-button-text");
+const budgetButtonText =
+    document.getElementById("budget-button-text");
 
-const addBudgetButton = document.getElementById("add-budget");
+const addBudgetButton =
+    document.getElementById("add-budget");
+
+
+const editTransactionModal =
+    document.getElementById("edit-transaction-modal");
+
+const closeEditModalButton =
+    document.getElementById("close-edit-modal");
+
+const editDescriptionInput =
+    document.getElementById("edit-description");
+
+const editAmountInput =
+    document.getElementById("edit-amount");
+
+const editTypeInput =
+    document.getElementById("edit-type");
+
+const editCategoryInput =
+    document.getElementById("edit-category");
+
+const editDateInput =
+    document.getElementById("edit-date");
+
+const saveEditTransactionButton =
+    document.getElementById("save-edit-transaction");
+
+const editDescriptionError =
+    document.getElementById("edit-description-error");
+
+const editAmountError =
+    document.getElementById("edit-amount-error");
+
+const editCategoryError =
+    document.getElementById("edit-category-error");
+
 
 addBudgetButton.addEventListener("click", function(){
 
@@ -407,7 +618,8 @@ addBudgetButton.addEventListener("click", function(){
 
     if(limit <= 0){
 
-        budgetError.textContent = "Budget limit must be greater than R0.";
+        budgetError.textContent =
+            "Budget limit must be greater than R0.";
 
         return;
 
@@ -424,7 +636,8 @@ addBudgetButton.addEventListener("click", function(){
 
     if(existingBudget){
 
-        budgetError.textContent = "A budget for this category already exists.";
+        budgetError.textContent =
+            "A budget for this category already exists.";
 
         return;
 
@@ -447,7 +660,10 @@ addBudgetButton.addEventListener("click", function(){
         saveBudgets();
 
         displayBudget();
+
         displayOverallBudget();
+
+        displayInsights();
 
         budgetCategoryInput.value = "";
 
@@ -474,7 +690,10 @@ addBudgetButton.addEventListener("click", function(){
     saveBudgets();
 
     displayBudget();
+
     displayOverallBudget();
+
+    displayInsights();
 
     budgetCategoryInput.value = "";
 
@@ -542,9 +761,15 @@ function displayTransactions(){
 
             (
 
-                transaction.description.toLowerCase().includes(searchTerm) ||
+                transaction.description
+                    .toLowerCase()
+                    .includes(searchTerm)
 
-                transaction.category.toLowerCase().includes(searchTerm)
+                ||
+
+                transaction.category
+                    .toLowerCase()
+                    .includes(searchTerm)
 
             )
 
@@ -552,7 +777,9 @@ function displayTransactions(){
 
             (
 
-                selectedType === "all" ||
+                selectedType === "all"
+
+                ||
 
                 transaction.type === selectedType
 
@@ -562,7 +789,9 @@ function displayTransactions(){
 
             (
 
-                selectedCategory === "all" ||
+                selectedCategory === "all"
+
+                ||
 
                 transaction.category === selectedCategory
 
@@ -602,7 +831,8 @@ function displayTransactions(){
 
     for(const transaction of filteredTransactions){
 
-        const transactionElement = document.createElement("div");
+        const transactionElement =
+            document.createElement("div");
 
         transactionElement.classList.add("transaction");
 
@@ -617,50 +847,78 @@ function displayTransactions(){
         }
 
         transactionElement.innerHTML = `
+        
             <div class="transaction-info">
 
                 <h3>${transaction.description}</h3>
 
-                <p>${transaction.category} • ${transaction.date}</p>
+                <p>
+                    ${transaction.category} • ${transaction.date}
+                </p>
 
             </div>
 
             <div class="transaction-right">
 
-                <p class="transaction-amount">R${transaction.amount.toFixed(2)}</p>
+                <p class="transaction-amount">
+                    R${transaction.amount.toFixed(2)}
+                </p>
 
                 <div class="transaction-actions">
 
-                    <button class="edit-transaction">Edit</button>
+                    <button class="edit-transaction">
+                        Edit
+                    </button>
 
-                    <button class="delete-transaction">Delete</button>
+                    <button class="delete-transaction">
+                        Delete
+                    </button>
 
                 </div>
 
             </div>
         `;
 
-        const editButton = transactionElement.querySelector(".edit-transaction");
+        const editButton =
+            transactionElement.querySelector(".edit-transaction");
 
         editButton.addEventListener("click", function(){
 
             editingTransactionid = transaction.id;
 
-            descriptionInput.value = transaction.description;
+            editDescriptionInput.value =
+                transaction.description;
 
-            amountInput.value = transaction.amount;
+            editAmountInput.value =
+                transaction.amount;
 
-            typeInput.value = transaction.type;
+            editTypeInput.value =
+                transaction.type;
 
-            categoryInput.value = transaction.category;
+            editCategoryInput.value =
+                transaction.category;
 
-            dateInput.value = transaction.date;
+            editDateInput.value =
+                transaction.date;
 
-            transactionButtonText.textContent = "Save Changes";
+            editDescriptionError.textContent = "";
+
+            editAmountError.textContent = "";
+
+            editCategoryError.textContent = "";
+
+            editDescriptionInput.classList.remove("input-error");
+
+            editAmountInput.classList.remove("input-error");
+
+            editCategoryInput.classList.remove("input-error");
+
+            editTransactionModal.classList.add("active");
 
         });
 
-        const deleteButton = transactionElement.querySelector(".delete-transaction");
+        const deleteButton =
+            transactionElement.querySelector(".delete-transaction");
 
         deleteButton.addEventListener("click", function(){
 
@@ -681,7 +939,10 @@ function displayTransactions(){
             displayTransactions();
 
             displayBudget();
+
             displayOverallBudget();
+
+            displayInsights();
 
         });
 
@@ -715,6 +976,7 @@ sortFilter.addEventListener("change", function(){
 
 });
 
+
 addTransactionButton.addEventListener("click", function(){
 
     let hasError = false;
@@ -735,7 +997,8 @@ addTransactionButton.addEventListener("click", function(){
 
         descriptionInput.classList.add("input-error");
 
-        descriptionError.textContent = "Description is required";
+        descriptionError.textContent =
+            "Description is required";
 
         hasError = true;
 
@@ -745,7 +1008,8 @@ addTransactionButton.addEventListener("click", function(){
 
         amountInput.classList.add("input-error");
 
-        amountError.textContent = "Amount is required";
+        amountError.textContent =
+            "Amount is required";
 
         hasError = true;
 
@@ -753,7 +1017,8 @@ addTransactionButton.addEventListener("click", function(){
 
         amountInput.classList.add("input-error");
 
-        amountError.textContent = "Amount must be greater than R0";
+        amountError.textContent =
+            "Amount must be greater than R0";
 
         hasError = true;
 
@@ -763,7 +1028,8 @@ addTransactionButton.addEventListener("click", function(){
 
         categoryInput.classList.add("input-error");
 
-        categoryError.textContent = "Category is required.";
+        categoryError.textContent =
+            "Category is required.";
 
         hasError = true;
 
@@ -775,49 +1041,25 @@ addTransactionButton.addEventListener("click", function(){
 
     }
 
-    if(editingTransactionid === null){
+    const newTransaction = {
 
-        const newTransaction = {
+        id: Date.now(),
 
-            id: Date.now(),
+        description: descriptionInput.value,
 
-            description: descriptionInput.value,
+        amount: Number(amountInput.value),
 
-            amount: Number(amountInput.value),
+        type: typeInput.value,
 
-            type: typeInput.value,
+        category: categoryInput.value,
 
-            category: categoryInput.value,
+        date: dateInput.value
 
-            date: dateInput.value
+    };
 
-        };
+    transactions.push(newTransaction);
 
-        transactions.push(newTransaction);
-
-        saveTransactions();
-
-    }else{
-
-        const transactionToEdit = transactions.find(function(item){
-
-            return item.id === editingTransactionid;
-
-        });
-
-        transactionToEdit.description = descriptionInput.value;
-
-        transactionToEdit.amount = Number(amountInput.value);
-
-        transactionToEdit.type = typeInput.value;
-
-        transactionToEdit.category = categoryInput.value;
-
-        transactionToEdit.date = dateInput.value;
-
-        saveTransactions();
-
-    }
+    saveTransactions();
 
     updateDashboard();
 
@@ -826,9 +1068,10 @@ addTransactionButton.addEventListener("click", function(){
     displayTransactions();
 
     displayBudget();
+
     displayOverallBudget();
 
-    editingTransactionid = null;
+    displayInsights();
 
     descriptionInput.value = "";
 
@@ -838,11 +1081,140 @@ addTransactionButton.addEventListener("click", function(){
 
     typeInput.value = "expense";
 
-    dateInput.value = new Date().toISOString().split("T")[0];
-
-    transactionButtonText.textContent = "Add transaction";
+    dateInput.value =
+        new Date().toISOString().split("T")[0];
 
 });
+
+
+closeEditModalButton.addEventListener("click", function(){
+
+    editTransactionModal.classList.remove("active");
+
+    editingTransactionid = null;
+
+});
+
+
+editTransactionModal.addEventListener("click", function(event){
+
+    if(event.target === editTransactionModal){
+
+        editTransactionModal.classList.remove("active");
+
+        editingTransactionid = null;
+
+    }
+
+});
+
+
+saveEditTransactionButton.addEventListener("click", function(){
+
+    let hasError = false;
+
+    editDescriptionInput.classList.remove("input-error");
+
+    editAmountInput.classList.remove("input-error");
+
+    editCategoryInput.classList.remove("input-error");
+
+    editDescriptionError.textContent = "";
+
+    editAmountError.textContent = "";
+
+    editCategoryError.textContent = "";
+
+    if(editDescriptionInput.value.trim() === ""){
+
+        editDescriptionInput.classList.add("input-error");
+
+        editDescriptionError.textContent =
+            "Description is required";
+
+        hasError = true;
+
+    }
+
+    if(editAmountInput.value === ""){
+
+        editAmountInput.classList.add("input-error");
+
+        editAmountError.textContent =
+            "Amount is required";
+
+        hasError = true;
+
+    }else if(Number(editAmountInput.value) <= 0){
+
+        editAmountInput.classList.add("input-error");
+
+        editAmountError.textContent =
+            "Amount must be greater than R0";
+
+        hasError = true;
+
+    }
+
+    if(editCategoryInput.value.trim() === ""){
+
+        editCategoryInput.classList.add("input-error");
+
+        editCategoryError.textContent =
+            "Category is required.";
+
+        hasError = true;
+
+    }
+
+    if(hasError){
+
+        return;
+
+    }
+
+    const transactionToEdit =
+        transactions.find(function(item){
+
+            return item.id === editingTransactionid;
+
+        });
+
+    transactionToEdit.description =
+        editDescriptionInput.value;
+
+    transactionToEdit.amount =
+        Number(editAmountInput.value);
+
+    transactionToEdit.type =
+        editTypeInput.value;
+
+    transactionToEdit.category =
+        editCategoryInput.value;
+
+    transactionToEdit.date =
+        editDateInput.value;
+
+    saveTransactions();
+
+    updateDashboard();
+
+    updateCategoryFilter();
+
+    displayTransactions();
+
+    displayBudget();
+
+    displayOverallBudget();
+
+    displayInsights();
+
+    editingTransactionid = null;
+
+    editTransactionModal.classList.remove("active");
+
+});
+
 
 updateDashboard();
 
@@ -853,3 +1225,5 @@ displayTransactions();
 displayBudget();
 
 displayOverallBudget();
+
+displayInsights();
