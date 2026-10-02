@@ -19,13 +19,30 @@
 </head>
 <body>
 
-    <div class="app">
+
+      <div class="app-header">
+
+    <div class="app-heading">
 
         <h1 class="app-title">Finance Tracker</h1>
 
         <p class="app-subtitle">Personal finance tracker</p>
 
-        <div class="dashboard">
+    </div>
+
+</div>
+
+<nav class="app-navigation">
+
+    <a href="#" class="active">Overview</a>
+
+    <a href="#transactions">Transactions</a>
+
+    <a href="#budgets">Budgets</a>
+
+</nav>
+
+        <div class="dashboard" id="overview">
 
             <section class="transaction-form">
 
@@ -89,7 +106,7 @@
 
         </div>
 
-        <section class="transaction-list">
+       <section class="transaction-list" id="transactions">
 
             <h2>Transactions</h2>
 
@@ -135,7 +152,7 @@
 
         </section>
 
-        <section class="budget-section">
+        <section class="budget-section" id="budgets">
 
             <h2>Budget</h2>
 

@@ -7,6 +7,11 @@ const overallBudgetContainer = document.getElementById("overall-budget");
 const insightsContainer = document.getElementById("insights");
 
 const transactionsContainer = document.getElementById("transactions-container");
+const navigationLinks = document.querySelectorAll(".app-navigation a");
+
+const navigationSections = document.querySelectorAll(
+    "#overview, #transactions, #budgets"
+);
 
 let editingTransactionid = null;
 let editingBudgetid = null;
@@ -1215,7 +1220,56 @@ saveEditTransactionButton.addEventListener("click", function(){
 
 });
 
+const navigationObserver = new IntersectionObserver(function(entries){
 
+    for(const entry of entries){
+
+        if(entry.isIntersecting){
+
+            navigationLinks.forEach(function(link){
+
+                link.classList.remove("active");
+
+            });
+
+           let activeLink;
+
+if(entry.target.id === "overview"){
+    activeLink = document.querySelector(
+        '.app-navigation a[href="#"]'
+    );
+}else{
+    activeLink = document.querySelector(
+        `.app-navigation a[href="#${entry.target.id}"]`
+    );
+}
+
+if(activeLink){
+    activeLink.classList.add("active");
+}
+            
+
+            if(activeLink){
+
+                activeLink.classList.add("active");
+
+            }
+
+        }
+
+    }
+
+}, {
+
+    threshold: 0.2
+
+});
+
+navigationSections.forEach(function(section){
+
+    navigationObserver.observe(section);
+
+});
 updateDashboard();
 
 updateCategoryFilter();

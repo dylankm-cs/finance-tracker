@@ -855,6 +855,12 @@ select option{
 
         justify-content: space-between;
     }
+    .app-navigation{
+    justify-content: center;
+    gap: 22px;
+    margin-top: 20px;
+    margin-bottom: 24px;
+}
 
 }
 .modal{
@@ -1022,4 +1028,105 @@ select option{
         transform: translateY(0) scale(1);
     }
 
+}
+html{
+    scroll-behavior: smooth;
+}
+
+.app-header{
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 32px;
+}
+
+.app-heading{
+    flex-shrink: 0;
+}
+
+.app-subtitle{
+    margin-bottom: 0;
+}
+
+.app-navigation{
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    gap: 28px;
+
+    margin-top: -58px;
+
+    margin-bottom: 32px;
+
+    padding: 8px 0;
+
+    pointer-events: none;
+}
+
+.app-navigation a{
+    position: relative;
+
+    padding: 8px 0;
+
+    color: rgba(245, 245, 245, 0.5);
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    text-decoration: none;
+
+    pointer-events: auto;
+
+    transition: 0.2s ease;
+}
+
+.app-navigation a::after{
+    content: "";
+
+    position: absolute;
+
+    bottom: 0;
+
+    left: 0;
+
+    width: 0;
+
+    height: 1px;
+
+    background: #ffffff;
+
+    transition: width 0.2s ease;
+}
+
+.app-navigation a:hover{
+    color: #ffffff;
+}
+
+.app-navigation a:hover::after{
+    width: 100%;
+}
+
+.app-navigation a.active{
+    color: #ffffff;
+}
+
+.app-navigation a.active::after{
+    width: 100%;
+
+}
+html{
+    scroll-behavior: smooth;
 }
